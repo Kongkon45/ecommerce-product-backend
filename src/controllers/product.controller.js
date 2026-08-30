@@ -1,9 +1,9 @@
 
-// create product controller 
-
 const Product = require("../models/product.model");
+const ApiError = require("../utils/ApiError");
+const catchAsync = require("../utils/catchAsync");
 
-const createProduct = async (req, res) => {
+const createProduct = catchAsync(async (req, res) => {
 
     const product = await Product.create(req.body);
 
@@ -15,11 +15,9 @@ const createProduct = async (req, res) => {
 
     });
 
-};
+});
 
-// get product controller 
-
-const getProducts = async (req, res) => {
+const getProducts = catchAsync(async (req, res) => {
 
     const products = await Product.find();
 
@@ -31,13 +29,15 @@ const getProducts = async (req, res) => {
 
     });
 
-};
+});
 
-// get single product controller 
-
-const getProduct = async (req, res) => {
+const getProduct = catchAsync(async (req, res) => {
 
     const product = await Product.findById(req.params.id);
+
+    if (!product) {
+        throw new ApiError(404, "Product not found");
+    }
 
     res.json({
 
@@ -47,12 +47,9 @@ const getProduct = async (req, res) => {
 
     });
 
-};
+});
 
-
-// update product controller 
-
-const updateProduct = async (req, res) => {
+const updateProduct = catchAsync(async (req, res) => {
 
     const product = await Product.findByIdAndUpdate(
 
@@ -60,9 +57,13 @@ const updateProduct = async (req, res) => {
 
         req.body,
 
-        { new: true }
+        { new: true, runValidators: true }
 
     );
+
+    if (!product) {
+        throw new ApiError(404, "Product not found");
+    }
 
     res.json({
 
@@ -72,14 +73,15 @@ const updateProduct = async (req, res) => {
 
     });
 
-};
+});
 
+const deleteProduct = catchAsync(async (req, res) => {
 
-// delete product controller 
+    const product = await Product.findByIdAndDelete(req.params.id);
 
-const deleteProduct = async (req, res) => {
-
-    await Product.findByIdAndDelete(req.params.id);
+    if (!product) {
+        throw new ApiError(404, "Product not found");
+    }
 
     res.json({
 
@@ -89,7 +91,7 @@ const deleteProduct = async (req, res) => {
 
     });
 
-};
+});
 
 
 
